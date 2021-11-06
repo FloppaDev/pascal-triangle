@@ -57,13 +57,10 @@ int uint_digits(int value) {
 }
 
 char digit_to_char(int digit) {
-    //TODO
-
-    return 0;
+    return (char) digit + 48;
 }
 
-int uint_to_str(int value, char *buffer, int buffer_len) {
-    memset(buffer, 0, buffer_len);
+int uint_to_str(int value, int buffer_len, char *buffer) {
     int digits = uint_digits(value);
 
     // 2 -> just push this character and return.
@@ -71,7 +68,7 @@ int uint_to_str(int value, char *buffer, int buffer_len) {
     // 50/10=5 -> if x/10 push this and next and return.
 
     if (digits == 1) {
-        buffer[0] = digit_to_char(value);
+        *buffer = digit_to_char(value);
         return 1;
     }
 
@@ -80,12 +77,12 @@ int uint_to_str(int value, char *buffer, int buffer_len) {
 
     if (divisor == 10) {
         // Two digits.
-        buffer[0] = digit_to_char(remainder);
-        buffer[1] = digit_to_char(value % 10);
+        *buffer = digit_to_char(remainder);
+        *(buffer+1) = digit_to_char(value % 10);
         return 2;
     }
 
-    buffer[0] = remainder;
+    *buffer = digit_to_char(remainder);
     int c = 1;
 
     while (1) {
@@ -95,11 +92,11 @@ int uint_to_str(int value, char *buffer, int buffer_len) {
 
          if (divisor == 10) {
              // Reached the last 2 digits of the number.
-             buffer[c++] = digit_to_char(remainder);
-             buffer[c++] = digit_to_char(value % 10);
+             *(buffer + c++) = digit_to_char(remainder);
+             *(buffer + c++) = digit_to_char(value % 10);
              return c;
         }else {
-            buffer[c++] = digit_to_char(remainder);
+            *(buffer + c++) = digit_to_char(remainder);
         }
     }
 }
@@ -115,15 +112,20 @@ int main(int argc, char *argv[]) {
     int digits = uint_digits(max);
     int spacing = digits + 2;
 
-    char *row_str; 
+    //char *row_str[max_len]; 
     int max_len = 1 + (rows - 1) * digits + spacing * (rows - 1);
-    memset(row_str, 0, max_len);
+    //memset(row_str, 0, max_len);
     char *number_str;
 
-    for (int i=0; i<rows; i++) {
-        int offset = (spacing + 1) * (rows - 1 - i);
-        printf("%s\n", row_str);
-    }
+    //test
+    char *row_str = (char *) malloc(10); 
+    int str_len = uint_to_str(16527, 10, row_str);
+    printf("%s\n", row_str);
+
+    //for (int i=0; i<rows; i++) {
+        //int offset = (spacing + 1) * (rows - 1 - i);
+        //printf("%s\n", row_str);
+    //}
 
     return 0;
 }
