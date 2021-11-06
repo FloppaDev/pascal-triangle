@@ -54,28 +54,36 @@ int uint_to_str(int value, char *buffer, int buffer_len) {
 
     int digits = int_digits(value);
 
+    // 2 -> just push this character and return.
+    // 29873/10000=2 (29873%10000)/1000=9 (29873%1000)/100=8 ...
+    // 50/10=5 -> if x/10 push this and next and return.
+
     if (digits == 1) {
-        //TODO
+        //TODO push digit
         //return
     }
 
-    int n = 1;
-    while (1) {
-        // 592
-        int value_divisor = n * 10;
-        int digit_divisor = (digits - n - 1) * 10; //can be 0
-        // 592/10=59 592/100=5 592/1000=0
-        // 506/10=50 506/100=5 
-        // 5/10=0
-        // 50/10=5
-        int value_remainder = value / value_divisor;
+    int divisor = pow(10, digits - 1);
+    int remainder = value / divisor;
 
+    if (divisor == 10) {
+        //TODO push remainder
+        //TODO push value % 10
+        //TODO return
+    }
+
+    while (1) {
+        int mod = value % divisor;
+        divisor /= 10;
+        remainder = mod / divisor;
+
+         if (divisor == 10) {
+            //TODO push remainder
+            //TODO push value % 10
+            //TODO return
+        }   
     }
     
-    for (int i=0; i<buffer_len; i++) {
-        if (*(buffer+1) == 0) return i + 1;
-    }
-
     return -1;
 }
 
