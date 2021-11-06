@@ -36,41 +36,57 @@ int help() {
     return 1;
 }
 
-int int_digits(int value) {
+int int_pow(int value, int power) {
+    //if (power == 0) return 1;
+    int p = value;
+    for (int i=2; i<=power; i++) {
+        p *= value; 
+    }
+    return p;
+}
+
+int uint_digits(int value) {
+    //if (value == 0) return 1;
     int digits = 1;
     int m = value;
     while (1) {
         m /= 10;
-        if (m  == 0) break;
+        if (m  == 0) return digits;
         else digits++;
     }
 }
 
+char digit_to_char(int digit) {
+    //TODO
+
+    return 0;
+}
+
 int uint_to_str(int value, char *buffer, int buffer_len) {
     memset(buffer, 0, buffer_len);
-
-    signed char digits[buffer_len];
-    memset(digits, -1, buffer_len);
-
-    int digits = int_digits(value);
+    int digits = uint_digits(value);
 
     // 2 -> just push this character and return.
-    // 29873/10000=2 (29873%10000)/1000=9 (29873%1000)/100=8 ...
+    // 29873/10000=2 -> (29873%10000)/1000=9 -> (29873%1000)/100=8 ...
     // 50/10=5 -> if x/10 push this and next and return.
 
     if (digits == 1) {
-        //TODO push digit
-        //return
+        buffer[0] = digit_to_char(value);
+        return 1;
     }
 
-    int divisor = pow(10, digits - 1);
+    int divisor = int_pow(10, digits - 1);
     int remainder = value / divisor;
 
     if (divisor == 10) {
-        //TODO push remainder
-        //TODO push value % 10
-        //TODO return
+        // Two digits.
+        buffer[0] = digit_to_char(remainder);
+        buffer[1] = digit_to_char(value % 10);
+        return 2;
     }
+
+    buffer[0] = remainder;
+    int c = 1;
 
     while (1) {
         int mod = value % divisor;
@@ -78,13 +94,14 @@ int uint_to_str(int value, char *buffer, int buffer_len) {
         remainder = mod / divisor;
 
          if (divisor == 10) {
-            //TODO push remainder
-            //TODO push value % 10
-            //TODO return
-        }   
+             // Reached the last 2 digits of the number.
+             buffer[c++] = digit_to_char(remainder);
+             buffer[c++] = digit_to_char(value % 10);
+             return c;
+        }else {
+            buffer[c++] = digit_to_char(remainder);
+        }
     }
-    
-    return -1;
 }
 
 int main(int argc, char *argv[]) {
@@ -95,7 +112,7 @@ int main(int argc, char *argv[]) {
 
     int max_k = (rows - 1) / 2;
     int max = (max_k - 1) * ((rows - max_k) / max_k);
-    int digits = int_digits(max);
+    int digits = uint_digits(max);
     int spacing = digits + 2;
 
     char *row_str; 
