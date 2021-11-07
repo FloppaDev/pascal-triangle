@@ -162,20 +162,28 @@ int main(int argc, char *argv[]) {
     // Print and reset cursor.
     end_row(row_str, &cursor);
 
+    // Calculate and print all the other rows.
     for (int n=1; n<rows; n++) {
+        // Offset at the start of the line.
         offset = line_offset(digits, rows, n);
         write_n(&cursor, ' ', offset);
 
+        // Calculate and convert to string the current entry.
         int nk = 12;
         uint_to_str(nk, digits, number_str);
+
+        // Write the first number's characters to row.
         for (int i=0; i<digits; i++) {
             *(cursor++) = *(number_str + i);
         }
 
+        // All entries in the row after the first.
         for (int i=0; i<n; i++) {
             write_n(&cursor, ' ', spacing);
+            
             int nk = 12;
             uint_to_str(nk, digits, number_str);
+
             for (int d=0; d<digits; d++) {
                 *(cursor++) = *(number_str + d);
             }
@@ -184,7 +192,8 @@ int main(int argc, char *argv[]) {
         end_row(row_str, &cursor);
     }
 
-    //TODO free?
+    // Free allocated string (number_str is included in row_str).
+    free(row_str);
 
     return 0;
 }
