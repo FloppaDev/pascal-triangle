@@ -56,7 +56,7 @@ int uint_digits(int value) {
 }
 
 char digit_to_char(int digit) {
-    return (char) digit + 48; //TODO test with '0'
+    return (char) digit + '0';
 }
 
 void uint_to_str(int value, int buffer_len, char *buffer) {
@@ -64,7 +64,7 @@ void uint_to_str(int value, int buffer_len, char *buffer) {
     int zeros = buffer_len - digits;
 
     for (int i=0; i<zeros; i++) {
-        *(buffer + i) = 48;
+        *(buffer + i) = '0';
     }
 
     char *buf_end = buffer + buffer_len;
@@ -126,29 +126,40 @@ int main(int argc, char *argv[]) {
     int last_len = 2 + (rows - 1) * digits + spacing * (rows - 1);
 
     char *row_str = (char *) malloc(last_len); 
+    char *cursor = row_str;
+
     char *number_str = (char *) malloc(digits);
 
     printf("last_len: %d\n", last_len);
 
     // Write the first line to row_str.
-    int offset = (spacing + 1) * (rows - 1);
-    for (int i=0; i<offset; i++) *(row_str + i) = ' ';
-    for (int i=0; i<digits-1; i++) *(row_str + offset + i) = '0';
-    *(row_str + offset + digits - 1) = '1';
-    *(row_str + offset + digits) = 0;
+    int offset = (digits + 1) * (rows - 1);
+    for (int i=0; i<offset; i++) *(cursor++) = ' ';
+    for (int i=0; i<digits-1; i++) *(cursor++) = '0';
+    *(cursor++) = '1';
 
+    *(cursor) = 0;
     printf("%s\n", row_str);
+    cursor = row_str;
 
     for (int n=1; n<rows; n++) {
-        int offset = (spacing + 1) * (rows - 1 - n);
+        offset = (digits + 1) * (rows - 1 - n);
+
         int nk = 12;
         uint_to_str(nk, digits, number_str);
+        for (int i=0; i<offset; i++) *(cursor++) = ' ';
+        for (int i=0; i<digits; i++) *(cursor++) = *(number_str + i);
 
-        for (int i=0; i<offset; i++) *(row_str + i) = ' ';
-        for (int i=0; i<digits; i++) *(row_str + offset + i) = *(number_str + i);
-        *(row_str + offset + digits) = 0;
+        for (int i=0; i<n; i++) {
+            for (int s=0; s<spacing; s++) *(cursor++) = ' ';    
+            nk = 12;
+            uint_to_str(nk, digits, number_str);
+            for (int d=0; d<digits; d++) *(cursor++) = *(number_str + d);
+        }
 
+        *(cursor) = 0;
         printf("%s\n", row_str);
+        cursor = row_str;
     }
 
 
