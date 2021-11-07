@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 //                      01
 //                   01    01
@@ -61,14 +60,23 @@ char digit_to_char(int digit) {
 }
 
 int uint_to_str(int value, int buffer_len, char *buffer) {
+    
+
     int digits = uint_digits(value);
+    int zeros = buffer_len - digits;
+
+    for (int i=0; i<zeros; i++) {
+        *(buffer + i) = 48;
+    }
+
+    char *buf_end = buffer + buffer_len;
 
     // 2 -> just push this character and return.
     // 29873/10000=2 -> (29873%10000)/1000=9 -> (29873%1000)/100=8 ...
     // 50/10=5 -> if x/10 push this and next and return.
 
     if (digits == 1) {
-        *buffer = digit_to_char(value);
+        *(buf_end - 1) = digit_to_char(value);
         return 1;
     }
 
@@ -77,12 +85,12 @@ int uint_to_str(int value, int buffer_len, char *buffer) {
 
     if (divisor == 10) {
         // Two digits.
-        *buffer = digit_to_char(remainder);
-        *(buffer+1) = digit_to_char(value % 10);
+        *(buf_end - 2) = digit_to_char(remainder);
+        *(buf_end - 1) = digit_to_char(value % 10);
         return 2;
     }
 
-    *buffer = digit_to_char(remainder);
+    *(buf_end - digits) = digit_to_char(remainder);
     int c = 1;
 
     while (1) {
@@ -92,11 +100,11 @@ int uint_to_str(int value, int buffer_len, char *buffer) {
 
          if (divisor == 10) {
              // Reached the last 2 digits of the number.
-             *(buffer + c++) = digit_to_char(remainder);
-             *(buffer + c++) = digit_to_char(value % 10);
+             *(buf_end - digits + c++) = digit_to_char(remainder);
+             *(buf_end - digits + c++) = digit_to_char(value % 10);
              return c;
         }else {
-            *(buffer + c++) = digit_to_char(remainder);
+            *(buf_end - digits + c++) = digit_to_char(remainder);
         }
     }
 }
@@ -108,24 +116,30 @@ int main(int argc, char *argv[]) {
     if (rows <= 2) return help();
 
     int max_k = (rows - 1) / 2;
-    int max = (max_k - 1) * ((rows - max_k) / max_k);
+    int max = 1;
+    for (int k=1; k<=max_k; k++) {
+        max = (int)(max * ((float)(rows - k) / k));
+    }
+
     int digits = uint_digits(max);
     int spacing = digits + 2;
 
-    //char *row_str[max_len]; 
-    int max_len = 1 + (rows - 1) * digits + spacing * (rows - 1);
-    //memset(row_str, 0, max_len);
-    char *number_str;
+    int last_len = 1 + (rows - 1) * digits + spacing * (rows - 1);
+    char *row_str = (char *) malloc(last_len); 
 
-    //test
-    char *row_str = (char *) malloc(10); 
-    int str_len = uint_to_str(16527, 10, row_str);
-    printf("%s\n", row_str);
+    char *number_str = (char *) malloc(digits);
 
-    //for (int i=0; i<rows; i++) {
-        //int offset = (spacing + 1) * (rows - 1 - i);
-        //printf("%s\n", row_str);
-    //}
+    int offset = (spacing + 1) * (rows - 1);
+    //printf("%s\n", row_str);
+
+    for (int n=1; n<rows; n++) {
+        int offset = (spacing + 1) * (rows - 1 - n);
+        int nk = 123;
+        int str_len = uint_to_str(nk, digits, number_str);
+    }
+
+
+    //TODO free?
 
     return 0;
 }
