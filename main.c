@@ -69,11 +69,11 @@ void write_n(char **cursor, char c, int n) {
     }
 }
 
-void write_color(char **cursor, int nk) {
+void write_color(char **cursor, int n) {
     **cursor = '\033';
     *(*cursor + 1) = '[';
     *(*cursor + 2) = '9';
-    *(*cursor + 3) = '1' + (char)nk % 7;
+    *(*cursor + 3) = '1' + (char)n % 7;
     *(*cursor + 4) = 'm';
     *cursor += 5;
 }
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
 
     // Write the first line to row_str.
     int offset = line_offset(digits, rows, 0);
-    write_color(&cursor, 0); 
+    write_color(&cursor, 1); 
     write_n(&cursor, ' ', offset);
     write_n(&cursor, '0', digits - 1);
     *(cursor++) = '1';
@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
         int nk = *cur_cell;
         cur_cell++;
         uint_to_str(nk, digits, number_str);
-        write_color(&cursor, nk); 
+        write_color(&cursor, n); 
 
         // Write the first number's characters to row.
         for (int i=0; i<digits; i++) {
@@ -204,10 +204,9 @@ int main(int argc, char *argv[]) {
         for (int k=1; k<=n; k++) {
             write_n(&cursor, ' ', spacing);
             
-            int nk = *cur_cell;
+            nk = *cur_cell;
             cur_cell++;
             uint_to_str(nk, digits, number_str);
-            write_color(&cursor, nk); 
 
             for (int d=0; d<digits; d++) {
                 *(cursor++) = *(number_str + d);
