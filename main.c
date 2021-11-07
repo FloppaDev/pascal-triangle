@@ -104,8 +104,7 @@ void uint_to_str(int value, int buffer_len, char *buffer) {
     int divisor = int_pow(10, digits - 1);
     int remainder = value / divisor;
 
-    if (divisor == 10) {
-        // Two digits.
+    if (digits == 2) {
         *cursor = digit_to_char(remainder);
         *(cursor + 1) = digit_to_char(value % 10);
         return;
@@ -169,7 +168,7 @@ int main(int argc, char *argv[]) {
         write_n(&cursor, ' ', offset);
 
         // Calculate and convert to string the current entry.
-        int nk = 12;
+        int nk = 1;
         uint_to_str(nk, digits, number_str);
 
         // Write the first number's characters to row.
@@ -178,10 +177,10 @@ int main(int argc, char *argv[]) {
         }
 
         // All entries in the row after the first.
-        for (int i=0; i<n; i++) {
+        for (int k=1; k<=n; k++) {
             write_n(&cursor, ' ', spacing);
             
-            int nk = 12;
+            nk = (int)(nk * ((float)(n + 1 - k) / k));
             uint_to_str(nk, digits, number_str);
 
             for (int d=0; d<digits; d++) {
