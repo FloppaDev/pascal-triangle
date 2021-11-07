@@ -120,7 +120,10 @@ int main(int argc, char *argv[]) {
     }
 
     int digits = uint_digits(max);
-    int spacing = digits + 2;
+    int spacing;
+    if (digits <= 2) spacing = digits;
+    else if (digits & 1) spacing = 1;
+    else spacing = 2;
 
     // Length of the last line + 1
     int last_len = 2 + (rows - 1) * digits + spacing * (rows - 1);
@@ -133,7 +136,8 @@ int main(int argc, char *argv[]) {
     printf("last_len: %d\n", last_len);
 
     // Write the first line to row_str.
-    int offset = (digits + 1) * (rows - 1);
+    //int offset = digits * (rows - 1);
+    int offset = digits <= 2 ? digits * (rows - 1 - 0) : digits + (1 + digits / 2) * (rows - 1 - 0);
     for (int i=0; i<offset; i++) *(cursor++) = ' ';
     for (int i=0; i<digits-1; i++) *(cursor++) = '0';
     *(cursor++) = '1';
@@ -143,7 +147,7 @@ int main(int argc, char *argv[]) {
     cursor = row_str;
 
     for (int n=1; n<rows; n++) {
-        offset = (digits + 1) * (rows - 1 - n);
+        int offset = digits <= 2 ? digits * (rows - 1 - n) : digits + (1 + digits / 2) * (rows - 1 - n);
 
         int nk = 12;
         uint_to_str(nk, digits, number_str);
@@ -152,7 +156,7 @@ int main(int argc, char *argv[]) {
 
         for (int i=0; i<n; i++) {
             for (int s=0; s<spacing; s++) *(cursor++) = ' ';    
-            nk = 12;
+            int nk = 12;
             uint_to_str(nk, digits, number_str);
             for (int d=0; d<digits; d++) *(cursor++) = *(number_str + d);
         }
