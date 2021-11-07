@@ -56,12 +56,10 @@ int uint_digits(int value) {
 }
 
 char digit_to_char(int digit) {
-    return (char) digit + 48;
+    return (char) digit + 48; //TODO test with '0'
 }
 
-int uint_to_str(int value, int buffer_len, char *buffer) {
-    
-
+void uint_to_str(int value, int buffer_len, char *buffer) {
     int digits = uint_digits(value);
     int zeros = buffer_len - digits;
 
@@ -77,7 +75,7 @@ int uint_to_str(int value, int buffer_len, char *buffer) {
 
     if (digits == 1) {
         *(buf_end - 1) = digit_to_char(value);
-        return 1;
+        return;
     }
 
     int divisor = int_pow(10, digits - 1);
@@ -87,7 +85,7 @@ int uint_to_str(int value, int buffer_len, char *buffer) {
         // Two digits.
         *(buf_end - 2) = digit_to_char(remainder);
         *(buf_end - 1) = digit_to_char(value % 10);
-        return 2;
+        return;
     }
 
     *(buf_end - digits) = digit_to_char(remainder);
@@ -102,7 +100,7 @@ int uint_to_str(int value, int buffer_len, char *buffer) {
              // Reached the last 2 digits of the number.
              *(buf_end - digits + c++) = digit_to_char(remainder);
              *(buf_end - digits + c++) = digit_to_char(value % 10);
-             return c;
+             return;
         }else {
             *(buf_end - digits + c++) = digit_to_char(remainder);
         }
@@ -124,18 +122,33 @@ int main(int argc, char *argv[]) {
     int digits = uint_digits(max);
     int spacing = digits + 2;
 
-    int last_len = 1 + (rows - 1) * digits + spacing * (rows - 1);
-    char *row_str = (char *) malloc(last_len); 
+    // Length of the last line + 1
+    int last_len = 2 + (rows - 1) * digits + spacing * (rows - 1);
 
+    char *row_str = (char *) malloc(last_len); 
     char *number_str = (char *) malloc(digits);
 
+    printf("last_len: %d\n", last_len);
+
+    // Write the first line to row_str.
     int offset = (spacing + 1) * (rows - 1);
-    //printf("%s\n", row_str);
+    for (int i=0; i<offset; i++) *(row_str + i) = ' ';
+    for (int i=0; i<digits-1; i++) *(row_str + offset + i) = '0';
+    *(row_str + offset + digits - 1) = '1';
+    *(row_str + offset + digits) = 0;
+
+    printf("%s\n", row_str);
 
     for (int n=1; n<rows; n++) {
         int offset = (spacing + 1) * (rows - 1 - n);
-        int nk = 123;
-        int str_len = uint_to_str(nk, digits, number_str);
+        int nk = 12;
+        uint_to_str(nk, digits, number_str);
+
+        for (int i=0; i<offset; i++) *(row_str + i) = ' ';
+        for (int i=0; i<digits; i++) *(row_str + offset + i) = *(number_str + i);
+        *(row_str + offset + digits) = 0;
+
+        printf("%s\n", row_str);
     }
 
 
