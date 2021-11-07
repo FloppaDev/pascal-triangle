@@ -69,6 +69,15 @@ void write_n(char **cursor, char c, int n) {
     }
 }
 
+void write_color(char **cursor, int nk) {
+    **cursor = '\033';
+    *(*cursor + 1) = '[';
+    *(*cursor + 2) = '9';
+    *(*cursor + 3) = '1' + (char)nk % 7;
+    *(*cursor + 4) = 'm';
+    *cursor += 5;
+}
+
 // End str with 0, print row_str to cursor, reset cursor.
 void end_row(char *row_str, char **cursor) {
     **cursor = 0;
@@ -136,17 +145,27 @@ int main(int argc, char *argv[]) {
     int rows = atoi(argv[1]);
     if (rows <= 2) return help();
 
-    int max_k = (rows - 1) / 2;
-    int max = 1;
-    for (int k=1; k<=max_k; k++) {
-        max = (int)(max * ((float)(rows - k) / k));
+    int cell_count = (rows * (rows + 1)) / 2;
+    int *cells = malloc(cell_count * sizeof(int));
+    int *cur_cell = cells;
+    *cur_cell = 1;
+    cur_cell++;
+
+    for (int n=1; n<rows; n++) {
+        for (int k=0; k<n+1; k++) {
+            int ul = k == 0 ? 0 : *(cur_cell - n - 1);
+            int ur = k == n ? 0 : *(cur_cell - n);
+            *cur_cell = ul + ur;
+            cur_cell++;
+        }
     }
 
+    int max = *(cells + cell_count - 1 - ((rows - 1) / 2));
     int digits = uint_digits(max);
     int spacing = digits < 2 ? digits : (digits & 1 ? 1 : 2);
 
-    // Length of the last line + 1
-    int last_len = 2 + (rows - 1) * digits + spacing * (rows - 1);
+    // Length of the last line (numbers + spacing + colors + \0)
+    int last_len = 2 + ((rows - 1) * digits) + (spacing * (rows - 1)) + (rows * 5);
 
     char *row_str = (char *) malloc(last_len); 
     char *cursor = row_str;
@@ -154,12 +173,15 @@ int main(int argc, char *argv[]) {
 
     // Write the first line to row_str.
     int offset = line_offset(digits, rows, 0);
+    write_color(&cursor, 0); 
     write_n(&cursor, ' ', offset);
     write_n(&cursor, '0', digits - 1);
     *(cursor++) = '1';
 
     // Print and reset cursor.
     end_row(row_str, &cursor);
+
+    cur_cell = cells + 1;
 
     // Calculate and print all the other rows.
     for (int n=1; n<rows; n++) {
@@ -168,8 +190,10 @@ int main(int argc, char *argv[]) {
         write_n(&cursor, ' ', offset);
 
         // Calculate and convert to string the current entry.
-        int nk = 1;
+        int nk = *cur_cell;
+        cur_cell++;
         uint_to_str(nk, digits, number_str);
+        write_color(&cursor, nk); 
 
         // Write the first number's characters to row.
         for (int i=0; i<digits; i++) {
@@ -180,8 +204,10 @@ int main(int argc, char *argv[]) {
         for (int k=1; k<=n; k++) {
             write_n(&cursor, ' ', spacing);
             
-            nk = (int)(nk * ((float)(n + 1 - k) / k));
+            int nk = *cur_cell;
+            cur_cell++;
             uint_to_str(nk, digits, number_str);
+            write_color(&cursor, nk); 
 
             for (int d=0; d<digits; d++) {
                 *(cursor++) = *(number_str + d);
@@ -191,7 +217,10 @@ int main(int argc, char *argv[]) {
         end_row(row_str, &cursor);
     }
 
+    printf("\033[0m");
+
     // Free allocated string (number_str is included in row_str).
+    free(cells);
     free(row_str);
 
     return 0;
